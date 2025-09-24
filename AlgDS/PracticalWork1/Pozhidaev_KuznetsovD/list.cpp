@@ -68,7 +68,7 @@ void print(const LinkedList* list) {
 	ListNode* current = list->head;
 	std::cout << "List: ";
 	while (current != nullptr) {
-		std::cout << current->data << " ";
+		std::cout << std::hex << current->data << " ";
 		current = current->next;
 	}
 	std::cout << std::endl;
