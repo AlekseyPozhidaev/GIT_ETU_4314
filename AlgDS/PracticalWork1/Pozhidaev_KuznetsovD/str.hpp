@@ -1,3 +1,4 @@
+#pragma once
 struct charArray {
 	char set[17];
 

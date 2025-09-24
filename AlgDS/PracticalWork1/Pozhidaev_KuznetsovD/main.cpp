@@ -49,7 +49,7 @@ void testB() {
 	}
 	auto t2 = std::chrono::high_resolution_clock::now();
 	auto dt = std::chrono::duration_cast<std::chrono::duration<double, std::micro>>(t2 - t1).count();
-	std::cout << N / 4 << " Bits sets: time: " << dt << std::endl;
+	std::cout << "Processing " << N / 4 << "  Bits sets time: " << dt << std::endl;
 }
 void testUS() {
 	const int N = 40000;
@@ -63,7 +63,7 @@ void testUS() {
 	}
 	auto t2 = std::chrono::high_resolution_clock::now();
 	auto dt = std::chrono::duration_cast<std::chrono::duration<double, std::micro>>(t2 - t1).count();
-	std::cout << N / 4 << " HEX sets: time: " << dt << std::endl;
+	std::cout << "Processing " << N / 4 << "   HEX sets time: " << dt << std::endl;
 }
 void testC() {
 	const int N = 40000;
@@ -77,7 +77,7 @@ void testC() {
 	}
 	auto t2 = std::chrono::high_resolution_clock::now();
 	auto dt = std::chrono::duration_cast<std::chrono::duration<double, std::micro>>(t2 - t1).count();
-	std::cout << N / 4 << " Chars sets: time: " << dt << std::endl;
+	std::cout << "Processing " << N / 4 << " Chars sets time: " << dt << std::endl;
 }
 void testL() {
 	const int N = 40000;
@@ -91,10 +91,11 @@ void testL() {
 	}
 	auto t2 = std::chrono::high_resolution_clock::now();
 	auto dt = std::chrono::duration_cast<std::chrono::duration<double, std::micro>>(t2 - t1).count();
-	std::cout << N / 4 << " Lists sets: time: " << dt << std::endl;
+	std::cout << "Processing " << N / 4 << " Lists sets time: " << dt << std::endl;
 }
 int main() {
-	correctionTest();
+	//correctionTest();
+	std::cout << "All results are in microseconds" << std::endl;
 	testB();
 	testUS();
 	testC();
