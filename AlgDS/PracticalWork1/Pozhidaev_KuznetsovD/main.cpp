@@ -2,27 +2,7 @@
 #include "hex.hpp"
 #include "list.hpp"
 #include "str.hpp"
-bitArray operator& (bitArray A, bitArray B) {
-	bitArray C;
-	for (int i = 0; i < std::size(A.arr); i++) {
-		A.arr[i] && B.arr[i] ? C.arr[i] = 1 : C.arr[i] = 0;
-	}
-	return C;
-}
-bitArray operator| (bitArray A, bitArray B) {
-	bitArray C;
-	for (int i = 0; i < std::size(A.arr); i++) {
-		A.arr[i] || B.arr[i] ? C.arr[i] = 1 : C.arr[i] = 0;
-	}
-	return C;
-}
-bitArray operator/ (bitArray A, bitArray B) {
-	bitArray C;
-	for (int i = 0; i < std::size(A.arr); i++) {
-		A.arr[i] && !B.arr[i] ? C.arr[i] = 1 : C.arr[i] = 0;
-	}
-	return C;
-}
+
 int main() {
 	bitArray A, B, C, D, E;
 	A = StoB(65534);//1111 1111 1111 1110

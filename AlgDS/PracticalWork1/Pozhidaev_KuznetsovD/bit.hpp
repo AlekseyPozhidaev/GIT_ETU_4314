@@ -4,6 +4,10 @@
 
 struct bitArray {
 	bool arr[16];
+	friend bitArray operator& (bitArray A, bitArray B);
+	friend bitArray operator| (bitArray A, bitArray B);
+	friend bitArray operator/ (bitArray A, bitArray B);
+
 };
 
 bool isBitSet(unsigned short int number, int bitPosition);

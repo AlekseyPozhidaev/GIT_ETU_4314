@@ -9,6 +9,27 @@
 */
 #include "bit.hpp"
 
+bitArray operator& (bitArray A, bitArray B) {
+	bitArray C;
+	for (int i = 0; i < std::size(A.arr); i++) {
+		A.arr[i] && B.arr[i] ? C.arr[i] = 1 : C.arr[i] = 0;
+	}
+	return C;
+}
+bitArray operator| (bitArray A, bitArray B) {
+	bitArray C;
+	for (int i = 0; i < std::size(A.arr); i++) {
+		A.arr[i] || B.arr[i] ? C.arr[i] = 1 : C.arr[i] = 0;
+	}
+	return C;
+}
+bitArray operator/ (bitArray A, bitArray B) {
+	bitArray C;
+	for (int i = 0; i < std::size(A.arr); i++) {
+		A.arr[i] && !B.arr[i] ? C.arr[i] = 1 : C.arr[i] = 0;
+	}
+	return C;
+}
 
 bool isBitSet(unsigned short int number, int bitPosition) {
 	int mask = 1 << bitPosition;
