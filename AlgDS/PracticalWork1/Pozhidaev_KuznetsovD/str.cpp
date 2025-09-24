@@ -28,7 +28,9 @@ unsigned short int CtoS(charArray A) {
 }
 
 void print(charArray A) {
-	for (int i = 0; A.set[i] != '\0'; i++) cout << A.set[i];
+	const char U[16] = { "EDCBA9876543210" };
+	for (int i = 0; A.set[i] != '\0' && std::find(std::begin(U), std::end(U), A.set[i]) != std::end(U); i++) cout << A.set[i];
+	std::cout << endl;
 }
 
 charArray operator&(charArray A, charArray B) {

@@ -66,7 +66,6 @@ int get_size(const LinkedList* list) {
 
 void print(const LinkedList* list) {
 	ListNode* current = list->head;
-	std::cout << "List: ";
 	while (current != nullptr) {
 		std::cout << std::hex << current->data << " ";
 		current = current->next;

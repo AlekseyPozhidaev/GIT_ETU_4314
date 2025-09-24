@@ -1,5 +1,9 @@
 struct charArray {
 	char set[17];
+
+	friend charArray operator&(charArray A, charArray B);
+	friend charArray operator|(charArray A, charArray B);
+	friend charArray operator/(charArray A, charArray B);
 };
 
 charArray StoC(unsigned short int A);
