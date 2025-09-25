@@ -38,15 +38,14 @@ void calc(charArray A, charArray B, charArray C, charArray D) {
 	print(A / B / (C & D));
 }
 void correctionTest() {
-
 	unsigned short int usA, usB, usC, usD, usE;
 	bitArray bA, bB, bC, bD, bE;
 	LinkedList lA, lB, lC, lD, lE;
 	charArray cA, cB, cC, cD, cE;
 	for (int l = 2; l <= 16; l += 2) {
 		std::cout << "Cardinality: " << std::dec << l << std::endl;
-		usA = (unsigned short int)(rand() % (int)pow(2, l)), usB = (unsigned short int)(rand() % (int)pow(2, l))
-			, usC = (unsigned short int)(rand() % (int)pow(2, l)), usD = (unsigned short int)(rand() % (int)pow(2, l));
+		usA = (unsigned short int)(rand() % (1u << l)), usB = (unsigned short int)(rand() % (1u << l))
+			, usC = (unsigned short int)(rand() % (1u << l)), usD = (unsigned short int)(rand() % (1u << l));
 		bA = StoB(usA), bB = StoB(usB), bC = StoB(usC), bD = StoB(usD);
 		lA = itol(usA), lB = itol(usB), lC = itol(usC), lD = itol(usD);
 		cA = StoC(usA), cB = StoC(usB), cC = StoC(usC), cD = StoC(usD);

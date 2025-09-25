@@ -1,12 +1,3 @@
-/*
-Файл со
-структурой bit array
-функцией вывода для bit array
-функцией перевода bit array в short int
-функцией перевода short int в bit array
-
-+ перегрузка логических операторов для работы с bit array
-*/
 #include "bit.hpp"
 
 bitArray operator& (bitArray A, bitArray B) {
@@ -39,7 +30,7 @@ bool isBitSet(unsigned short int number, int bitPosition) {
 unsigned short int BtoS(bitArray A) {
 	unsigned short int num = 0;
 	for (int i = 0; i < std::size(A.arr); i++) {
-		if (A.arr[i]) num += pow(2, i);
+		if (A.arr[i]) num += (1u << i);
 	}
 	return num;
 }

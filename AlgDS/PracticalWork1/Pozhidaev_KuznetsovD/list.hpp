@@ -1,19 +1,16 @@
 #pragma once
 
 #include <iostream>
-#include <stdexcept>
 
-// Узел списка
 struct ListNode {
 	int data;
 	ListNode* next;
 };
 
-// Структура списка
 struct LinkedList {
-	ListNode* head;  // Первый элемент
-	ListNode* tail;  // Последний элемент
-	int size;        // Размер списка
+	ListNode* head;
+	ListNode* tail;
+	int size;
 
 	friend LinkedList operator& (LinkedList A, LinkedList B);
 	friend LinkedList operator| (LinkedList A, LinkedList B);

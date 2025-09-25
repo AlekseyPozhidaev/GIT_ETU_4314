@@ -1,4 +1,10 @@
 #pragma once
+
+#include <cstring>
+#include <iostream>
+
+using namespace std;
+
 struct charArray {
 	char set[17];
 

@@ -1,11 +1,4 @@
 #include "str.hpp"
-#include <algorithm>
-#include <cmath>
-#include <cstring>
-#include <iostream>
-
-using namespace std;
-
 
 charArray StoC(unsigned short int A) {
 	charArray B = {};
