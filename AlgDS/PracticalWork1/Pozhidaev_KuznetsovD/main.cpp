@@ -3,6 +3,41 @@
 #include "str.hpp"
 #include <chrono>
 
+void gcInput(unsigned short int& intValue) {
+	string s;
+	unsigned short int o;
+	std::cin.clear();
+	std::cin.ignore();
+	cout << "Please enter an Element: ";
+	char d[100];
+	gets_s(d);
+	while (*d && strspn(d, "0123456789abcdefABCDEF") != strlen(d)) {
+		cout << "Invalid input. Please enter an Element: ";
+		gets_s(d);
+	}
+	if (d[0] > 57) {
+		intValue = d[0] - 87;
+	}
+	else {
+		intValue = stoi(d);
+	}
+}
+
+void InputHex(unsigned short int& num) {
+	num = 0;
+	unsigned short int temp;
+	string ch;
+
+	while (ch != "0") {
+		std::cout << "Do you want to continue or stop to enter a set\nQuit - 0\nContinue - anything else" << std::endl;
+		std::cin >> ch;
+		if (ch != "0") {
+			gcInput(temp);
+			if ((num & (1u << temp)) == 0) num += (1u << temp);
+		}
+	}
+}
+
 void calc(unsigned short int A, unsigned short int B, unsigned short int C, unsigned short int D) {
 	std::cout << "HEX: " << std::endl;
 	std::cout << std::hex << A << std::endl;
@@ -115,16 +150,41 @@ void testL(int n) {
 int main() {
 	std::srand(std::time(0));
 	std::cout << "Output in format of:\nSet A:\nSet B:\nSet C:\nSet D:\nSet E:\n";
-	correctionTest();
-	std::cout << "All results are in microseconds" << std::endl;
-	for (int i = 2; i <= 16; i += 2) {
-		std::cout << "Cardinality: " << std::dec << i << std::endl;
-		testB(i);
-		testUS(i);
-		testC(i);
-		testL(i);
-		std::cout << std::endl;
+	string ch;
+	unsigned short int usA, usB, usC, usD, usE;
+	bitArray bA, bB, bC, bD, bE;
+	LinkedList lA, lB, lC, lD, lE;
+	charArray cA, cB, cC, cD, cE;
+	cout << "choose the option\n Manual input - 0\nRandom tests - Anything else\n";
+	std::cin >> ch;
+	if (ch == "0") {
+		cout << "Please enter a set A:" << endl;
+		InputHex(usA);
+		cout << "Please enter a set B:" << endl;
+		InputHex(usB);
+		cout << "Please enter a set C:" << endl;
+		InputHex(usC);
+		cout << "Please enter a set D:" << endl;
+		InputHex(usD);
+		bA = StoB(usA), bB = StoB(usB), bC = StoB(usC), bD = StoB(usD);
+		lA = itol(usA), lB = itol(usB), lC = itol(usC), lD = itol(usD);
+		cA = StoC(usA), cB = StoC(usB), cC = StoC(usC), cD = StoC(usD);
+		calc(usA, usB, usC, usD);
+		calc(bA, bB, bC, bD);
+		calc(lA, lB, lC, lD);
+		calc(cA, cB, cC, cD);
 	}
-
+	else {
+		correctionTest();
+		std::cout << "All results are in microseconds" << std::endl;
+		for (int i = 2; i <= 16; i += 2) {
+			std::cout << "Cardinality: " << std::dec << i << std::endl;
+			testB(i);
+			testUS(i);
+			testC(i);
+			testL(i);
+			std::cout << std::endl;
+		}
+	}
 	return 0;
 }
