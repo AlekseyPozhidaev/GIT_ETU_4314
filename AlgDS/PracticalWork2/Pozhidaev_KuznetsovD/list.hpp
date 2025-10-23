@@ -29,24 +29,29 @@ public:
 	LinkedList();
 	~LinkedList();
 
+	LinkedList(const LinkedList& other);
+
+	LinkedList& operator=(const LinkedList& other);
+
+	void clear();
+
 	ListNode* create_node(int value);
 	void push_back(int value);
-	const bool contains(int value);
-	int get_at(int index);
+	bool contains(int value) const;
+	int get_at(int index) const;
 	int get_size() const;
 	void print() const;
 
 	LinkedList itol(unsigned short int num);
-	unsigned short int ltoi();
+	LinkedList intersection(const LinkedList& other) const;
+	LinkedList union_with(const LinkedList& other) const;
+	LinkedList difference(const LinkedList& other) const;
+	unsigned short int ltoi() const;
 
 	LinkedList get();
 
-	LinkedList intersection(LinkedList other) const;  // аналог &
-	LinkedList union_with(LinkedList other) const;     // аналог |
-	LinkedList difference(LinkedList other) const;     // аналог /
-
 	// Перегрузки операторов для объединения / пересечения / разности
-	friend LinkedList operator& (LinkedList A, LinkedList B);
-	friend LinkedList operator| (LinkedList A, LinkedList B);
-	friend LinkedList operator/ (LinkedList A, LinkedList B);
+	friend LinkedList operator& (const LinkedList& A, const LinkedList& B);
+	friend LinkedList operator| (const LinkedList& A, const LinkedList& B);
+	friend LinkedList operator/ (const LinkedList& A, const LinkedList& B);
 };

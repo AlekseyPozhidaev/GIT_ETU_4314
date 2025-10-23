@@ -2,6 +2,7 @@
 #include "list.hpp"
 #include "str.hpp"
 #include <chrono>
+#include <cmath>
 
 void gcInput(unsigned short int& intValue) {
 	string s;
@@ -10,10 +11,10 @@ void gcInput(unsigned short int& intValue) {
 	std::cin.ignore();
 	cout << "Please enter an Element: ";
 	char d[100];
-	gets_s(d);
+	std::cin.getline(d, sizeof(d));
 	while (*d && strspn(d, "0123456789abcdefABCDEF") != strlen(d)) {
 		cout << "Invalid input. Please enter an Element: ";
-		gets_s(d);
+		std::cin.getline(d, sizeof(d));
 	}
 	if (d[0] > 57) {
 		intValue = d[0] - 87;
