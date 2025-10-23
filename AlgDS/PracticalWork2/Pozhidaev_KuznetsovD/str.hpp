@@ -1,5 +1,4 @@
 #pragma once
-
 #include <algorithm>
 #include <cstring>
 #include <iostream>
@@ -10,20 +9,18 @@ using namespace std;
 class charArray {
 private:
 	char set[17];
+	static int counter;
+	int id;
 
 public:
 	charArray();
-	charArray(unsigned short int A) {
-		const char U[16] = { "0123456789ABCDE" };
-		int pos = 0;
-		for (int i = 0; i < 16; i++) {
-			if (A & (1u << i)) this->set[pos++] = U[i];
-		}
-		this->set[pos] = '\0';
-	}
+	charArray(unsigned short int A);
+	charArray(const charArray& other); // Конструктор копирования
+	charArray& operator=(const charArray& other); // Оператор присваивания
+	~charArray(); // Деструктор
 
 	unsigned short int CtoS();
-	void StoC(unsigned short int A);
+	void form(unsigned short int A);
 	void print();
 
 	friend charArray operator&(charArray A, charArray B);

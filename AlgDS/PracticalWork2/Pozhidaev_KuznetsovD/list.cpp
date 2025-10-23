@@ -3,50 +3,47 @@
 #include <iostream>
 #include <stdexcept>
 
-// Инициализация статических членов
+int LinkedList::counter = 0;
 void* LinkedList::memory_pool[POOL_SIZE] = { nullptr };
 bool LinkedList::used_blocks[POOL_SIZE] = { false };
 
-// Перегрузка оператора new
 void* LinkedList::operator new(size_t size) {
 	for (int i = 0; i < POOL_SIZE; ++i) {
 		if (!used_blocks[i]) {
 			if (!memory_pool[i]) {
-				memory_pool[i] = ::operator new(size); // выделяем память
+				memory_pool[i] = ::operator new(size);
 			}
 			used_blocks[i] = true;
-			//std::cout << "[POOL] Выделен блок #" << i << std::endl;
 			return memory_pool[i];
 		}
 	}
-	throw std::bad_alloc(); // если память закончилась
+	throw std::bad_alloc();
 }
 
-// Перегрузка оператора delete    
 void LinkedList::operator delete(void* ptr) noexcept {
 	for (int i = 0; i < POOL_SIZE; ++i) {
 		if (memory_pool[i] == ptr) {
 			used_blocks[i] = false;
-			//std::cout << "[POOL] Освобожден блок #" << i << std::endl;
 			return;
 		}
 	}
 }
 
-// Конструктор
 LinkedList::LinkedList() {
+	id = ++counter;
 	head = nullptr;
 	tail = nullptr;
 	size = 0;
+	std::cout << "[LinkedList] Constructor (default): ID = " << id << std::endl;
 }
 
-// Деструктор
 LinkedList::~LinkedList() {
+	std::cout << "[LinkedList] Destructor: ID = " << id << std::endl;
 	clear();
 }
 
-// Конструктор копирования
 LinkedList::LinkedList(const LinkedList& other) {
+	id = ++counter;
 	head = nullptr;
 	tail = nullptr;
 	size = 0;
@@ -56,23 +53,22 @@ LinkedList::LinkedList(const LinkedList& other) {
 		push_back(current->data);
 		current = current->next;
 	}
+	std::cout << "[LinkedList] Copy Constructor: ID = " << id << " from ID = " << other.id << std::endl;
 }
 
-// Оператор присваивания
 LinkedList& LinkedList::operator=(const LinkedList& other) {
 	if (this != &other) {
 		clear();
-
 		ListNode* current = other.head;
 		while (current) {
 			push_back(current->data);
 			current = current->next;
 		}
 	}
+	std::cout << "[LinkedList] Assignment: ID = " << id << " from ID = " << other.id << std::endl;
 	return *this;
 }
 
-// Очистка списка
 void LinkedList::clear() {
 	ListNode* current = head;
 	while (current) {
@@ -85,7 +81,6 @@ void LinkedList::clear() {
 	size = 0;
 }
 
-// Создание узла
 ListNode* LinkedList::create_node(int value) {
 	ListNode* node = new ListNode();
 	node->data = value;
@@ -93,7 +88,6 @@ ListNode* LinkedList::create_node(int value) {
 	return node;
 }
 
-// Добавление в конец
 void LinkedList::push_back(int value) {
 	ListNode* node = create_node(value);
 	if (!head) {
@@ -106,7 +100,6 @@ void LinkedList::push_back(int value) {
 	size++;
 }
 
-// Проверка на наличие элемента
 bool LinkedList::contains(int value) const {
 	ListNode* current = this->head;
 	while (current) {
@@ -116,7 +109,6 @@ bool LinkedList::contains(int value) const {
 	return false;
 }
 
-// Получить значение по индексу
 int LinkedList::get_at(int index) const {
 	if (index < 0 || index >= size) throw std::out_of_range("Индекс вне диапазона");
 	ListNode* current = head;
@@ -124,12 +116,10 @@ int LinkedList::get_at(int index) const {
 	return current->data;
 }
 
-// Получить размер
 int LinkedList::get_size() const {
 	return size;
 }
 
-// Вывести список
 void LinkedList::print() const {
 	ListNode* current = this->head;
 	std::cout << "[";
@@ -145,9 +135,8 @@ void LinkedList::print() const {
 	std::cout << "]" << std::endl;
 }
 
-// Вспомогательные методы
-LinkedList LinkedList::itol(unsigned short int num) {
-	clear(); // Очищаем текущий список
+LinkedList LinkedList::form(unsigned short int num) {
+	clear();
 	for (int i = 0; i < sizeof(num) * 8; i++) {
 		if ((num & (1 << i)) != 0) {
 			this->push_back(i);
@@ -160,14 +149,13 @@ unsigned short int LinkedList::ltoi() const {
 	unsigned short int num = 0;
 	for (int i = 0; i < this->get_size(); i++) {
 		int power = this->get_at(i);
-		if (power >= 0 && power < 16) { // Проверка диапазона для unsigned short
+		if (power >= 0 && power < 16) {
 			num += (1 << power);
 		}
 	}
 	return num;
 }
 
-// === Пересечение множеств (&) ===
 LinkedList LinkedList::intersection(const LinkedList& other) const {
 	LinkedList result;
 	ListNode* current = head;
@@ -179,7 +167,6 @@ LinkedList LinkedList::intersection(const LinkedList& other) const {
 	return result;
 }
 
-// === Объединение множеств (|) ===
 LinkedList LinkedList::union_with(const LinkedList& other) const {
 	LinkedList result;
 	ListNode* current = head;
@@ -197,7 +184,6 @@ LinkedList LinkedList::union_with(const LinkedList& other) const {
 	return result;
 }
 
-// === Разность множеств (/) ===
 LinkedList LinkedList::difference(const LinkedList& other) const {
 	LinkedList result;
 	ListNode* current = head;
@@ -209,7 +195,6 @@ LinkedList LinkedList::difference(const LinkedList& other) const {
 	return result;
 }
 
-// === Операторы для синтаксиса A & B ===
 LinkedList operator&(const LinkedList& A, const LinkedList& B) {
 	return A.intersection(B);
 }

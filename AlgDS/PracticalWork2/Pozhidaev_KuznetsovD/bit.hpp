@@ -1,18 +1,23 @@
 #pragma once
-#include <cstddef> // для std::size
+#include <cstddef>
 #include <iostream>
 
 class bitArray {
 private:
 	bool arr[16];
+	static int counter;
+	int id;
 
 public:
-	bitArray StoB(unsigned short int num);
-	unsigned short int BtoS();
-	void print();
-
 	bitArray();
 	bitArray(unsigned short int num);
+	bitArray(const bitArray& other);
+	bitArray& operator=(const bitArray& other);
+	~bitArray();
+
+	bitArray form(unsigned short int num);
+	unsigned short int BtoS();
+	void print();
 
 	friend bitArray operator& (bitArray A, bitArray B);
 	friend bitArray operator| (bitArray A, bitArray B);
