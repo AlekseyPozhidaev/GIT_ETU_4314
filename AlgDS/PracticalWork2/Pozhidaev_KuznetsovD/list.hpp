@@ -31,19 +31,19 @@ public:
 
 	ListNode* create_node(int value);
 	void push_back(int value);
-	bool contains(const LinkedList* list, int value);
+	const bool contains(int value);
 	int get_at(int index);
 	int get_size() const;
-	void print(const LinkedList* list) const;
+	void print() const;
 
 	LinkedList itol(unsigned short int num);
 	unsigned short int ltoi();
 
 	LinkedList get();
 
-	LinkedList intersection(const LinkedList& other) const;  // аналог &
-	LinkedList union_with(const LinkedList& other) const;     // аналог |
-	LinkedList difference(const LinkedList& other) const;     // аналог /
+	LinkedList intersection(LinkedList other) const;  // аналог &
+	LinkedList union_with(LinkedList other) const;     // аналог |
+	LinkedList difference(LinkedList other) const;     // аналог /
 
 	// Перегрузки операторов для объединения / пересечения / разности
 	friend LinkedList operator& (LinkedList A, LinkedList B);

@@ -65,8 +65,8 @@ void LinkedList::push_back(int value) {
 }
 
 // Проверка на наличие элемента
-bool LinkedList::contains(const LinkedList* list, int value) {
-	ListNode* current = list->head;
+const bool LinkedList::contains(int value) {
+	ListNode* current = this->head;
 	while (current) {
 		if (current->data == value) return true;
 		current = current->next;
@@ -88,8 +88,8 @@ int LinkedList::get_size() const {
 }
 
 // Вывести список
-void LinkedList::print(const LinkedList* list) const {
-	ListNode* current = list->head;
+void LinkedList::print() const {
+	ListNode* current = this->head;
 	std::cout << "[";
 	while (current) {
 		std::cout << current->data;
@@ -116,7 +116,7 @@ unsigned short int LinkedList::ltoi() {
 LinkedList LinkedList::get() { return *this; }
 
 // === Пересечение множеств (&) ===
-LinkedList LinkedList::intersection(const LinkedList& other) const {
+LinkedList LinkedList::intersection(LinkedList other) const {
 	LinkedList result;
 	ListNode* current = head;
 	while (current) {
@@ -128,7 +128,7 @@ LinkedList LinkedList::intersection(const LinkedList& other) const {
 }
 
 // === Объединение множеств (|) ===
-LinkedList LinkedList::union_with(const LinkedList& other) const {
+LinkedList LinkedList::union_with(LinkedList other) const {
 	LinkedList result;
 	ListNode* current = head;
 	while (current) {
@@ -146,7 +146,7 @@ LinkedList LinkedList::union_with(const LinkedList& other) const {
 }
 
 // === Разность множеств (/) ===
-LinkedList LinkedList::difference(const LinkedList& other) const {
+LinkedList LinkedList::difference(LinkedList other) const {
 	LinkedList result;
 	ListNode* current = head;
 	while (current) {
@@ -158,12 +158,14 @@ LinkedList LinkedList::difference(const LinkedList& other) const {
 }
 
 // === Операторы для синтаксиса A & B ===
-LinkedList operator&(const LinkedList& A, const LinkedList& B) {
+LinkedList operator&(const LinkedList A, const LinkedList B) {
 	return A.intersection(B);
 }
-LinkedList operator|(const LinkedList& A, const LinkedList& B) {
+
+LinkedList operator|(const LinkedList A, const LinkedList B) {  // убрали ссылки &
 	return A.union_with(B);
 }
-LinkedList operator/(const LinkedList& A, const LinkedList& B) {
+
+LinkedList operator/(const LinkedList A, const LinkedList B) {  // убрали ссылки &
 	return A.difference(B);
 }

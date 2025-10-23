@@ -1,5 +1,16 @@
 #include "bit.hpp"
 
+// Конструкторы
+bitArray::bitArray() {
+	for (int i = 0; i < std::size(arr); i++) {
+		arr[i] = false;
+	}
+}
+
+bitArray::bitArray(unsigned short int num) {
+	StoB(num);
+}
+
 bitArray operator& (bitArray A, bitArray B) {
 	bitArray C;
 	for (int i = 0; i < std::size(A.arr); i++) {
@@ -7,6 +18,7 @@ bitArray operator& (bitArray A, bitArray B) {
 	}
 	return C;
 }
+
 bitArray operator| (bitArray A, bitArray B) {
 	bitArray C;
 	for (int i = 0; i < std::size(A.arr); i++) {

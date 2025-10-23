@@ -19,7 +19,7 @@ void gcInput(unsigned short int& intValue) {
 		intValue = d[0] - 87;
 	}
 	else {
-		intValue = stoi(d);
+		intValue = std::stoi(d);
 	}
 }
 
@@ -53,7 +53,7 @@ void calc(bitArray A, bitArray B, bitArray C, bitArray D) {
 	C.print();
 	D.print();
 
-	print(A / B / (C & D));
+	(A / B / (C & D)).print();
 }
 void calc(LinkedList A, LinkedList B, LinkedList C, LinkedList D) {
 	std::cout << "List: " << std::endl;
@@ -80,9 +80,9 @@ void correctionTest() {
 		std::cout << "Cardinality: " << std::dec << l << std::endl;
 		usA = (unsigned short int)(rand() % (1u << l)), usB = (unsigned short int)(rand() % (1u << l))
 			, usC = (unsigned short int)(rand() % (1u << l)), usD = (unsigned short int)(rand() % (1u << l));
-		bA = StoB(usA), bB = StoB(usB), bC = StoB(usC), bD = StoB(usD);
-		lA = itol(usA), lB = itol(usB), lC = itol(usC), lD = itol(usD);
-		cA = StoC(usA), cB = StoC(usB), cC = StoC(usC), cD = StoC(usD);
+		bA.StoB(usA), bB.StoB(usB), bC.StoB(usC), bD.StoB(usD);
+		lA.itol(usA), lB.itol(usB), lC.itol(usC), lD.itol(usD);
+		cA.StoC(usA), cB.StoC(usB), cC.StoC(usC), cD.StoC(usD);
 		calc(usA, usB, usC, usD);
 		calc(bA, bB, bC, bD);
 		calc(lA, lB, lC, lD);
@@ -94,7 +94,7 @@ void testB(int n) {
 	const int N = 40000;
 	bitArray R[N];
 	for (int i = 0; i < N; i++) {
-		R[i] = StoB((unsigned short int)(rand() % (int)pow(2, n)));
+		R[i].StoB((unsigned short int)(rand() % (int)pow(2, n)));
 	}
 	auto t1 = std::chrono::high_resolution_clock::now();
 	for (int i = 0; i < N / 4; i++) {
@@ -122,7 +122,7 @@ void testC(int n) {
 	const int N = 40000;
 	charArray R[N];
 	for (int i = 0; i < N; i++) {
-		R[i] = StoC((unsigned short int)(rand() % (int)pow(2, n)));
+		R[i].StoC((unsigned short int)(rand() % (int)pow(2, n)));
 	}
 	auto t1 = std::chrono::high_resolution_clock::now();
 	for (int i = 0; i < N / 4; i++) {
@@ -136,7 +136,7 @@ void testL(int n) {
 	const int N = 40000;
 	LinkedList R[N];
 	for (int i = 0; i < N; i++) {
-		R[i] = itol((unsigned short int)(rand() % (int)pow(2, n)));
+		R[i].itol((unsigned short int)(rand() % (int)pow(2, n)));
 	}
 	auto t1 = std::chrono::high_resolution_clock::now();
 	for (int i = 0; i < N / 4; i++) {
@@ -165,9 +165,9 @@ int main() {
 		InputHex(usC);
 		cout << "Please enter a set D:" << endl;
 		InputHex(usD);
-		bA = StoB(usA), bB = StoB(usB), bC = StoB(usC), bD = StoB(usD);
-		lA = itol(usA), lB = itol(usB), lC = itol(usC), lD = itol(usD);
-		cA = StoC(usA), cB = StoC(usB), cC = StoC(usC), cD = StoC(usD);
+		bA.StoB(usA), bB.StoB(usB), bC.StoB(usC), bD.StoB(usD);
+		lA.itol(usA), lB.itol(usB), lC.itol(usC), lD.itol(usD);
+		cA.StoC(usA), cB.StoC(usB), cC.StoC(usC), cD.StoC(usD);
 		calc(usA, usB, usC, usD);
 		calc(bA, bB, bC, bD);
 		calc(lA, lB, lC, lD);
