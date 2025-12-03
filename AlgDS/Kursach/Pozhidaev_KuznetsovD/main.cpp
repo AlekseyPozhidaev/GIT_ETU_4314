@@ -12,6 +12,23 @@ bool isGraphVizInstalled() {
 	return (result == 0);
 }
 
+void openFile(const std::string& filePath) {
+	std::string command;
+
+#ifdef _WIN32
+	// Windows
+	command = "start \"\" \"" + filePath + "\"";
+#elif __APPLE__
+	// macOS
+	command = "open \"" + filePath + "\"";
+#else
+	// Linux и другие Unix-системы
+	command = "xdg-open \"" + filePath + "\"";
+#endif
+
+	std::system(command.c_str());
+}
+
 int main() {
 	setlocale(LC_ALL, "RU");
 	Graph g;
@@ -61,7 +78,7 @@ int main() {
 		g.exportToDot("graph.dot");
 		if (GraphVis) {
 			system("dot -Tpng graph.dot -o graph.png");
-			system("graph.png");
+			openFile("graph.png");
 		}
 		std::cout << "\nФундаментальные циклы:\n";
 		g.getCycle();
