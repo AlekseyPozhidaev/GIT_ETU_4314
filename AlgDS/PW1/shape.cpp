@@ -4,11 +4,12 @@
 #include "shape.h"
 // ПРИМЕР ДОБАВКИ: дополнительный фрагмент – полуокружность
 class h_circle: public rectangle, public reflectable {
+
 public:
-	h_circle(point a, int rd) 
-		: rectangle(point(a.x-rd, a.y), point(a.x+rd,a.y+rd*0.7+1)) { }
+	h_circle(point a, int rd): rectangle(point(a.x-rd, a.y), point(a.x+rd,a.y+rd*0.7+1)) { }
 	void draw();
 };
+
 void h_circle :: draw()   //Алгоритм Брезенхэма для окружностей
 {   // (выдаются два сектора, указываемые значением reflected::vert)
     int x0 = (ne.x + sw.x)/2, y0 = vert ? sw.y : ne.y;
@@ -24,11 +25,14 @@ void h_circle :: draw()   //Алгоритм Брезенхэма для окр�
        ++x; delta += 2 * (x - y);  --y;
 	   }
 }
+
 // ПРИМЕР ДОБАВКИ: дополнительная функция присоединения…
 void down(shape &p,  const shape &q)
 {    point n = q.south( );
      point s = p.north( );
      p.move(n.x - s.x, n.y - s.y - 1); }
+
+
 // Cборная пользовательская фигура – физиономия
 class myshape : public rectangle {      // Моя фигура ЯВЛЯЕТСЯ
      int w, h;			             //        прямоугольником
@@ -44,14 +48,16 @@ class myshape : public rectangle {      // Моя фигура ЯВЛЯЕТСЯ
 	 void rotate_left( ) { }
 	 void rotate_right( ) { }
 };
-myshape :: myshape(point a, point b)
-	: rectangle(a, b),	//Инициализация базового класса
+
+
+myshape :: myshape(point a, point b): rectangle(a, b),	//Инициализация базового класса
 	  w(neast( ).x - swest( ).x + 1), // Инициализация данных
 	  h(neast( ).y - swest( ).y + 1), // – строго в порядке объявления!
 	  l_eye(point(swest( ).x + 2, swest( ).y + h * 3 / 4), 2),
 	  r_eye(point(swest( ).x + w - 4, swest( ).y + h * 3 / 4), 2),
-	  mouth(point(swest( ).x + 2, swest( ).y + h / 4), w - 4) 
-{ }
+	  mouth(point(swest( ).x + 2, swest( ).y + h / 4), w - 4) { }
+
+	  
 void myshape :: draw( )
 {
 	 rectangle :: draw( );      //Контур лица (глаза и нос рисуются сами!) 
@@ -59,14 +65,18 @@ void myshape :: draw( )
 	 int b = (swest( ).y + neast( ).y) / 2;
 	 put_point(point(a, b));   // Нос – существует только на рисунке!
 }
+
 void myshape :: move(int a, int b)
+
 {
 	 rectangle :: move(a, b);
 	 l_eye.move(a, b);  r_eye.move(a, b);
 	 mouth.move(a, b);
 }
+
 int main( ) 
-{   setlocale(LC_ALL, "Rus");
+{   
+	setlocale(LC_ALL, "Rus");
 	screen_init( );
 //== 1. Объявление набора фигур ==
 	rectangle hat(point(0, 0), point(14, 5));
@@ -93,4 +103,5 @@ int main( )
 	std::cout << "=== Ready! ===\n";
 	std::cin.get();       //Смотреть результат
 	screen_destroy( );
-	return 0; }
+	return 0;
+}
