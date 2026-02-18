@@ -4,7 +4,7 @@ using std::list;
 
 //==1. Поддержка экрана в форме матрицы символов ==
 char screen[YMAX] [XMAX];	
-enum color { black = '*', white = ' ' };
+enum color { black = '*', white = '.' };
 
 
 void screen_init( )

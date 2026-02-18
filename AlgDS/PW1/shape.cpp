@@ -26,11 +26,87 @@ void h_circle :: draw()   //Алгоритм Брезенхэма для окр�
 	   }
 }
 
+// КОСОЙ КРЕСТ
+class olique_cross: public rectangle
+{
+	public:
+		olique_cross(point a, point b): rectangle(a, b) { }
+		void draw();
+};
+
+void olique_cross:: draw()
+{
+	put_line(sw.x , sw.y, ne.x, ne.y);
+	put_line(nwest().x, nwest().y, seast().x, seast().y);
+}
+
+// РОМБ
+class rhombus: public shape
+{
+	protected:
+		point c;
+		int h_dig;
+
+	public:
+		rhombus(point a, int b): c(a), h_dig(b) { }
+		
+		point north( ) const { return point(c.x, c.y + h_dig); }
+  		point south( ) const { return point(c.x, c.y - h_dig); }
+  		point east( ) const { return point(c.x + h_dig, c.y); }
+  		point west( ) const { return point(c.x - h_dig, c.y); }
+  		point neast( ) const { return point(c.x + h_dig, c.y + h_dig); }
+  		point seast( ) const { return point(c.x + h_dig, c.y - h_dig); }
+  		point nwest( ) const { return point(c.x - h_dig, c.y + h_dig); }
+  		point swest( ) const { return point(c.x - h_dig, c.y - h_dig); }
+
+		void draw();
+		void move(int a, int b)  {c.x += a, c.y += b;} // НЕ РАБОТАЕТ (не знаю почему)
+		void resize(double d) {h_dig*d;}                // Изменение длины линии в (d) раз НЕ РАБОТАЕТ (тоже не понял)
+
+};
+
+void rhombus:: draw()
+{
+	put_line(west().x, west().y, north().x, north().y);
+	put_line(north().x, north().y, east().x, east().y);
+	put_line(west().x, west().y, south().x, south().y); 
+	put_line(south().x, south().y, east().x, east().y);
+}
+
+
+// РОМБ С КОСЫМ КРЕСТОМ
+class cross_rhombus: public rhombus
+{
+	public:
+		cross_rhombus(point(a), int b): rhombus(a, b) { };
+		void draw();
+};
+
+void cross_rhombus:: draw()
+{
+	put_line(west().x, west().y, north().x, north().y);
+	put_line(north().x, north().y, east().x, east().y);
+	put_line(west().x, west().y, south().x, south().y); 
+	put_line(south().x, south().y, east().x, east().y);
+	put_line(swest().x , swest().y, neast().x, neast().y);
+	put_line(nwest().x, nwest().y, seast().x, seast().y);
+}
+
 // ПРИМЕР ДОБАВКИ: дополнительная функция присоединения…
 void down(shape &p,  const shape &q)
 {    point n = q.south( );
      point s = p.north( );
      p.move(n.x - s.x, n.y - s.y - 1); }
+
+void left(shape &p,  const shape &q)
+{    point w = q.west( );
+     point e = p.east( );
+     p.move(e.x - w.x - 1, e.y - w.y); }
+
+void right(shape &p,  const shape &q)
+{    point e = q.east( );
+     point w = p.west( );
+     p.move(w.x - e.x + 1, w.y - e.y); }
 
 
 // Cборная пользовательская фигура – физиономия
@@ -81,8 +157,11 @@ int main( )
 //== 1. Объявление набора фигур ==
 	rectangle hat(point(0, 0), point(14, 5));
 	line brim(point(20,9),17);
-	myshape face(point(15,10), point(27,18));
-	h_circle beard(point(40,10), 5);
+	myshape face(point(35,20), point(47,28));
+	cross_rhombus left_ear(point(40, 40), 5);
+	cross_rhombus right_ear(point(47, 40), 5);
+	cross_rhombus tie(point(25, 40), 5);
+	//h_circle beard(point(40,10), 5);
 	shape_refresh( );
 	std::cout << "=== Generated... ===\n";
 	std::cin.get(); //Смотреть исходный набор
@@ -90,7 +169,10 @@ int main( )
 	hat.rotate_right( );
 	brim.resize(2.0);
 	face.resize(1.2);
-	beard.resize(1.2);
+	//beard.resize(1.2);
+	left_ear.resize(0.2);
+	right_ear.resize(0.2);
+	tie.resize(3.0);
     shape_refresh();
 	std::cout << "=== Prepared... ===\n";
 	std::cin.get(); //Смотреть результат поворотов/отражений
@@ -98,7 +180,10 @@ int main( )
 //	face.move(0, -10); // Лицо – в исходное положение (если нужно!)
 	up(brim, face);
 	up(hat, brim);
-	down(beard, face);
+	//down(beard, face);
+	right(right_ear, face);
+	left(left_ear, face);
+	down(tie, face);
 	shape_refresh( );
 	std::cout << "=== Ready! ===\n";
 	std::cin.get();       //Смотреть результат
