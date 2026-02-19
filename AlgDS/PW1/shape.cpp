@@ -61,7 +61,7 @@ class rhombus: public shape
 
 		void draw();
 		void move(int a, int b)  {c.x += a, c.y += b;} // НЕ РАБОТАЕТ (не знаю почему)
-		void resize(double d) {h_dig*d;}                // Изменение длины линии в (d) раз НЕ РАБОТАЕТ (тоже не понял)
+		void resize(double d) {h_dig *= d;}                // Изменение длины линии в (d) раз НЕ РАБОТАЕТ (тоже не понял)
 
 };
 
@@ -98,15 +98,19 @@ void down(shape &p,  const shape &q)
      point s = p.north( );
      p.move(n.x - s.x, n.y - s.y - 1); }
 
-void left(shape &p,  const shape &q)
-{    point w = q.west( );
-     point e = p.east( );
-     p.move(e.x - w.x - 1, e.y - w.y); }
+void left(shape &p, const shape &q) {
+    point w = q.west();   // левая сторона q
+    point e = p.east();   // правая сторона p
+    // Перемещаем p так, чтобы её правая сторона коснулась левой стороны q
+    p.move(w.x - e.x - 1, w.y - e.y);
+}
 
-void right(shape &p,  const shape &q)
-{    point e = q.east( );
-     point w = p.west( );
-     p.move(w.x - e.x + 1, w.y - e.y); }
+void right(shape &p, const shape &q) {
+    point e = q.east();   // правая сторона q
+    point w = p.west();   // левая сторона p
+    // Перемещаем p так, чтобы её левая сторона коснулась правой стороны q
+    p.move(e.x - w.x + 1, e.y - w.y);
+}
 
 
 // Cборная пользовательская фигура – физиономия
@@ -161,7 +165,7 @@ int main( )
 	cross_rhombus left_ear(point(40, 40), 5);
 	cross_rhombus right_ear(point(47, 40), 5);
 	cross_rhombus tie(point(25, 40), 5);
-	//h_circle beard(point(40,10), 5);
+	h_circle beard(point(40,10), 5);
 	shape_refresh( );
 	std::cout << "=== Generated... ===\n";
 	std::cin.get(); //Смотреть исходный набор
@@ -169,10 +173,10 @@ int main( )
 	hat.rotate_right( );
 	brim.resize(2.0);
 	face.resize(1.2);
-	//beard.resize(1.2);
-	left_ear.resize(0.2);
-	right_ear.resize(0.2);
-	tie.resize(3.0);
+	beard.resize(1.2);
+	left_ear.resize(0.5);
+	right_ear.resize(0.5);
+	tie.resize(0.8);
     shape_refresh();
 	std::cout << "=== Prepared... ===\n";
 	std::cin.get(); //Смотреть результат поворотов/отражений
@@ -180,9 +184,9 @@ int main( )
 //	face.move(0, -10); // Лицо – в исходное положение (если нужно!)
 	up(brim, face);
 	up(hat, brim);
-	//down(beard, face);
-	right(right_ear, face);
+	down(beard, face);
 	left(left_ear, face);
+	right(right_ear, face);
 	down(tie, face);
 	shape_refresh( );
 	std::cout << "=== Ready! ===\n";
