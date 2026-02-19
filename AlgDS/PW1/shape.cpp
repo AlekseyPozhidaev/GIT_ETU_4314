@@ -112,6 +112,14 @@ void right(shape &p, const shape &q) {
     p.move(e.x - w.x + 1, e.y - w.y);
 }
 
+void center(shape &p, const shape &q) {
+    int q_cx = (q.west().x + q.east().x) / 2;
+    int q_cy = (q.south().y + q.north().y) / 2;
+    int p_cx = (p.west().x + p.east().x) / 2;
+    int p_cy = (p.south().y + p.north().y) / 2;
+    p.move(q_cx - p_cx, q_cy - p_cy);
+}
+
 
 // Cборная пользовательская фигура – физиономия
 class myshape : public rectangle {      // Моя фигура ЯВЛЯЕТСЯ
@@ -154,7 +162,7 @@ void myshape :: move(int a, int b)
 	 mouth.move(a, b);
 }
 
-int main( ) 
+int main( )
 {   
 	setlocale(LC_ALL, "Rus");
 	screen_init( );
@@ -163,9 +171,10 @@ int main( )
 	line brim(point(20,9),17);
 	myshape face(point(35,20), point(47,28));
 	cross_rhombus left_ear(point(40, 40), 5);
-	cross_rhombus right_ear(point(47, 40), 5);
+	cross_rhombus right_ear(point(55, 40), 5);
 	cross_rhombus tie(point(25, 40), 5);
 	h_circle beard(point(40,10), 5);
+	cross_rhombus top(point(80, 40), 5);
 	shape_refresh( );
 	std::cout << "=== Generated... ===\n";
 	std::cin.get(); //Смотреть исходный набор
@@ -177,6 +186,7 @@ int main( )
 	left_ear.resize(0.5);
 	right_ear.resize(0.5);
 	tie.resize(0.8);
+	top.resize(0.7);
     shape_refresh();
 	std::cout << "=== Prepared... ===\n";
 	std::cin.get(); //Смотреть результат поворотов/отражений
@@ -188,6 +198,7 @@ int main( )
 	left(left_ear, face);
 	right(right_ear, face);
 	down(tie, face);
+	center(top, hat);
 	shape_refresh( );
 	std::cout << "=== Ready! ===\n";
 	std::cin.get();       //Смотреть результат
