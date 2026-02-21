@@ -18,20 +18,20 @@ struct aio_operation {
     struct aiocb aio;
     char *buffer;
     int write_operation;      // 0 = read, 1 = write
-    void* next_operation;     // используем как указатель на "контекст"
+    void* next_operation;     // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"
 };
 
-/* Контекст (будем класть его в next_operation, чтобы соответствовать структуре из пояснений) */
+/* пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅ next_operation, пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ) */
 struct op_ctx {
     off_t offset;
     size_t buf_size;
     ssize_t last_read;
-    int active;   // 1 если операция в полете
-    int done;     // 1 если слот закончил работу
-    volatile sig_atomic_t completed; // ставим в completion handler
+    int active;   // 1 пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+    int done;     // 1 пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+    volatile sig_atomic_t completed; // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ completion handler
 };
 
-/* Глобальные параметры копирования */
+/* пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ */
 static int g_fd_in = -1;
 static int g_fd_out = -1;
 static off_t g_file_size = 0;
@@ -58,12 +58,12 @@ static size_t fs_block_size_for_path(const char *path) {
     return 4096;
 }
 
-/* Функция завершения (как в пояснениях) */
+/* пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ) */
 void aio_completion_handler(sigval_t sigval) {
     struct aio_operation *op = (struct aio_operation *)sigval.sival_ptr;
     struct op_ctx *ctx = (struct op_ctx*)op->next_operation;
-    /* Ничего не “делаем” здесь, только отмечаем завершение.
-       Основная логика строго в main через aio_suspend + aio_return. */
+    /* пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.
+       пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ main пїЅпїЅпїЅпїЅпїЅ aio_suspend + aio_return. */
     ctx->completed = 1;
 }
 
@@ -134,19 +134,19 @@ int main(int argc, char **argv) {
         return 2;
     }
 
-    /* open как в пояснениях */
+    /* open пїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ */
     g_fd_in = open(src, O_RDONLY | O_NONBLOCK, 0666);
     if (g_fd_in < 0) die("open(read_filename)");
 
     g_fd_out = open(dst, O_CREAT | O_WRONLY | O_TRUNC | O_NONBLOCK, 0666);
     if (g_fd_out < 0) die("open(write_filename)");
 
-    /* fstat как в пояснениях */
+    /* fstat пїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ */
     struct stat st;
     if (fstat(g_fd_in, &st) != 0) die("fstat");
     g_file_size = st.st_size;
 
-    /* кратность “кластеру/блоку” — проверим блок ФС и выровняем буферы */
+    /* пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ/пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ */
     size_t fs_block = fs_block_size_for_path(dst);
     if (g_block_size % fs_block != 0) {
         fprintf(stderr,
@@ -157,11 +157,11 @@ int main(int argc, char **argv) {
     fprintf(stderr, "File size: %" PRId64 " bytes\n", (int64_t)g_file_size);
     fprintf(stderr, "n_ops=%d block_size=%zu fs_block=%zu\n", g_n_ops, g_block_size, fs_block);
 
-    struct aio_operation *ops = calloc((size_t)g_n_ops, sizeof(*ops));
-    struct op_ctx *ctxs = calloc((size_t)g_n_ops, sizeof(*ctxs));
+    struct aio_operation *ops = (aio_operation*)calloc((size_t)g_n_ops, sizeof(*ops));
+    struct op_ctx *ctxs = (op_ctx*)calloc((size_t)g_n_ops, sizeof(*ctxs));
     if (!ops || !ctxs) die("calloc");
 
-    /* выровненные буферы (на всякий случай: это хорошо для требований кратности/диска) */
+    /* пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ: пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ/пїЅпїЅпїЅпїЅпїЅ) */
     size_t align = fs_block;
     if (align < 4096) align = 4096;
 
@@ -189,7 +189,7 @@ int main(int argc, char **argv) {
 
     uint64_t t0 = now_ns();
 
-    /* стартуем n чтений */
+    /* пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ n пїЅпїЅпїЅпїЅпїЅпїЅ */
     int done_slots = 0;
     for (int i = 0; i < g_n_ops; i++) {
         if (ctxs[i].offset >= g_file_size) {
@@ -200,7 +200,7 @@ int main(int argc, char **argv) {
         submit_read(&ops[i]);
     }
 
-    /* Главный цикл ожидания: строго aio_suspend */
+    /* пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ: пїЅпїЅпїЅпїЅпїЅпїЅ aio_suspend */
     while (done_slots < g_n_ops) {
         const struct aiocb *list[1024];
         int cnt = 0;
@@ -215,7 +215,7 @@ int main(int argc, char **argv) {
             die("aio_suspend");
         }
 
-        /* обрабатываем завершившиеся операции через aio_return */
+        /* пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ aio_return */
         for (int i = 0; i < g_n_ops; i++) {
             if (!ctxs[i].active) continue;
 
@@ -229,7 +229,7 @@ int main(int argc, char **argv) {
             ctxs[i].active = 0;
 
             if (ops[i].write_operation) {
-                /* завершилась запись */
+                /* пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ */
                 g_total_written += ret;
 
                 ctxs[i].offset += (off_t)g_n_ops * (off_t)g_block_size;
@@ -240,7 +240,7 @@ int main(int argc, char **argv) {
                 }
                 submit_read(&ops[i]);
             } else {
-                /* завершилось чтение */
+                /* пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ */
                 if (ret == 0) {
                     ctxs[i].done = 1;
                     done_slots++;
@@ -252,7 +252,7 @@ int main(int argc, char **argv) {
         }
     }
 
-    /* подгоняем размер выходного файла */
+    /* пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ */
     if (ftruncate(g_fd_out, g_file_size) != 0) perror("ftruncate (warning)");
 
     uint64_t t1 = now_ns();
