@@ -267,6 +267,8 @@ void changeAttributes() {
     DWORD newAttr = 0;
     newAttr = stoul(s, nullptr, 0);
 
+    SetFileAttributesA(path.c_str(), newAttr);
+
     cout << "Attributes changed successfully." << endl;
 }
 void fileInfoByHandle() {
