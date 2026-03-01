@@ -144,6 +144,10 @@ void createFileFunc() {
     HANDLE h = CreateFileA(path.c_str(), GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
                            FILE_ATTRIBUTE_NORMAL, NULL);
     if (h != INVALID_HANDLE_VALUE) {
+        const char* testData = "Test file created via CreateFile Win32 API.\r\n";
+        DWORD written;
+        WriteFile(h, testData, (DWORD)strlen(testData), &written, NULL);
+        CloseHandle(h);
         cout << "File created successfully with test data." << endl;
     } else {
         cout << "File created error." << endl;
@@ -306,12 +310,13 @@ void getFileTimeFunc() {
     CloseHandle(h);
 }
 void setFileTimeFunc() {
-    cout << "\n=== 12. Set file times (SetFileTime) ===" << endl;
+        cout << "\n=== 12. Set file times (SetFileTime) ===" << endl;
     string path;
     cout << "File path: ";
     getline(cin, path);
 
-    HANDLE h = CreateFileA(path.c_str(), FILE_WRITE_ATTRIBUTES, 0, NULL, OPEN_EXISTING, 0, NULL);
+    HANDLE h = CreateFileA(path.c_str(), FILE_WRITE_ATTRIBUTES, 0,
+                           NULL, OPEN_EXISTING, 0, NULL);
 
     FILETIME now;
     GetSystemTimeAsFileTime(&now);
@@ -322,7 +327,7 @@ void setFileTimeFunc() {
     string s;
     getline(cin, s);
     int choice = 0;
-    choice = stoi(s);
+    try { choice = stoi(s); } catch (...) {}
 
     BOOL ok = FALSE;
     switch (choice) {
