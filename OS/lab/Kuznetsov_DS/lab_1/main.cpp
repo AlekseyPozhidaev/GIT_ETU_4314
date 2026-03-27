@@ -97,7 +97,7 @@ void CopyFileFunc(const std::string& src, const std::string& dest) {
 	}
 	else {
 		DWORD err = GetLastError();
-		if (err == ERROR_FILE_EXISTS) {
+		if (err == ERROR_ALREADY_EXISTS) {
 			std::cout << "Destination file already exists." << std::endl;
 		}
 		else {
@@ -109,12 +109,12 @@ void CopyFileFunc(const std::string& src, const std::string& dest) {
 void MoveFileFunc(const std::string& src, const std::string& dest) {
 	std::wstring wsrc(src.begin(), src.end());
 	std::wstring wdest(dest.begin(), dest.end());
-	if (MoveFileExW(wsrc.c_str(), wdest.c_str(), 0)) {  // No flags for simple move, will fail if exists
+	if (MoveFileExW(wsrc.c_str(), wdest.c_str(), 0)) {
 		std::cout << "File moved successfully." << std::endl;
 	}
 	else {
 		DWORD err = GetLastError();
-		if (err == ERROR_FILE_EXISTS) {
+		if (err == ERROR_ALREADY_EXISTS) {
 			std::cout << "Destination file already exists." << std::endl;
 		}
 		else {
@@ -201,7 +201,7 @@ void SetFileTimeFunc(const std::string& path) {
 }
 
 int main() {
-	int choice;
+	char choice;
 	std::string input1, input2;
 	DWORD attrs;
 
@@ -216,56 +216,57 @@ int main() {
 		std::cout << "7. Move file\n";
 		std::cout << "8. Get file attributes and info\n";
 		std::cout << "9. Set file attributes\n";
-		std::cout << "10. Set file time\n";
-		std::cout << "11. Exit\n";
+		std::cout << "0. Set file time\n";
+		std::cout << "e. Exit\n";
 		std::cout << "Enter choice: ";
 		std::cin >> choice;
-		std::cin.ignore();  // Clear newline
+		std::cin.clear();
+		std::cin.ignore(100, '\n');
 
 		switch (choice) {
-			case 1:
+			case '1':
 				ListDrives();
 				break;
-			case 2:
+			case '2':
 				std::cout << "Enter drive (e.g., C:\\): ";
 				std::getline(std::cin, input1);
 				GetDriveInfo(input1);
 				break;
-			case 3:
+			case '3':
 				std::cout << "Enter directory path: ";
 				std::getline(std::cin, input1);
 				CreateDirectoryFunc(input1);
 				break;
-			case 4:
+			case '4':
 				std::cout << "Enter directory path: ";
 				std::getline(std::cin, input1);
 				RemoveDirectoryFunc(input1);
 				break;
-			case 5:
+			case '5':
 				std::cout << "Enter file path: ";
 				std::getline(std::cin, input1);
 				CreateFileFunc(input1);
 				break;
-			case 6:
+			case '6':
 				std::cout << "Enter source file: ";
 				std::getline(std::cin, input1);
 				std::cout << "Enter destination file: ";
 				std::getline(std::cin, input2);
 				CopyFileFunc(input1, input2);
 				break;
-			case 7:
+			case '7':
 				std::cout << "Enter source file: ";
 				std::getline(std::cin, input1);
 				std::cout << "Enter destination file: ";
 				std::getline(std::cin, input2);
 				MoveFileFunc(input1, input2);
 				break;
-			case 8:
+			case '8':
 				std::cout << "Enter file path: ";
 				std::getline(std::cin, input1);
 				GetFileAttributesFunc(input1);
 				break;
-			case 9:
+			case '9':
 				std::cout << "Enter file path: ";
 				std::getline(std::cin, input1);
 				std::cout << "Enter new attributes (hex): ";
@@ -273,15 +274,18 @@ int main() {
 				std::cin.ignore();
 				SetFileAttributesFunc(input1, attrs);
 				break;
-			case 10:
+			case '0':
 				std::cout << "Enter file path: ";
 				std::getline(std::cin, input1);
 				SetFileTimeFunc(input1);
 				break;
-			case 11:
+			case 'e':
 				return 0;
 			default:
 				std::cout << "Invalid choice." << std::endl;
+				std::cin.clear();
+				std::cin.sync();
+
 		}
 	}
 	return 0;
