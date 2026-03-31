@@ -32,7 +32,6 @@ off_t next_read_offset = 0;
 int read_fd, write_fd;
 size_t chunk_size;
 
-// количество активных операций
 int active_ops = 0;
 
 void start_aio_read(struct aio_operation *op);
@@ -71,7 +70,7 @@ void aio_completion_handler(sigval_t sigval) {
     }
 
     if (op->write_operation) {
-        // запись завершена → пробуем следующий кусок
+
         pthread_mutex_lock(&offset_mutex);
         if (next_read_offset >= file_size) {
             pthread_mutex_unlock(&offset_mutex);
@@ -95,9 +94,8 @@ void aio_completion_handler(sigval_t sigval) {
             decrement_ops();
         }
 
-        decrement_ops(); // за завершённую write
+        decrement_ops(); 
     } else {
-        // чтение завершено → запускаем запись
         op->aio.aio_fildes = write_fd;
         op->write_operation = 1;
 
@@ -107,7 +105,7 @@ void aio_completion_handler(sigval_t sigval) {
             decrement_ops();
         }
 
-        decrement_ops(); // за завершённую read
+        decrement_ops(); 
     }
 }
 
@@ -200,12 +198,10 @@ int main(int argc, char *argv[]) {
     struct timespec start, end;
     clock_gettime(CLOCK_MONOTONIC, &start);
 
-    // старт pipeline
     for (int i = 0; i < n; i++) {
         start_aio_read(ops[i]);
     }
 
-    // ожидание завершения
     pthread_mutex_lock(&active_mutex);
     while (active_ops > 0 || next_read_offset < file_size) {
         pthread_cond_wait(&active_cond, &active_mutex);

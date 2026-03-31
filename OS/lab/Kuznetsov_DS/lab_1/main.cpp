@@ -22,6 +22,7 @@ void ListDrives() {
 
 void GetDriveInfo(const std::string& drive) {
 	std::wstring wdrive(drive.begin(), drive.end());
+
 	UINT type = GetDriveTypeW(wdrive.c_str());
 	std::cout << "Drive type: ";
 	switch (type) {
@@ -38,10 +39,70 @@ void GetDriveInfo(const std::string& drive) {
 	wchar_t volumeName[256];
 	DWORD serialNumber, maxComponentLen, fileSysFlags;
 	wchar_t fileSysName[256];
-	if (GetVolumeInformationW(wdrive.c_str(), volumeName, 256, &serialNumber, &maxComponentLen, &fileSysFlags, fileSysName, 256)) {
+
+	if (GetVolumeInformationW(
+		wdrive.c_str(),
+		volumeName, 256,
+		&serialNumber,
+		&maxComponentLen,
+		&fileSysFlags,
+		fileSysName, 256))
+	{
 		std::wcout << L"Volume name: " << volumeName << std::endl;
 		std::cout << "Serial number: " << serialNumber << std::endl;
 		std::wcout << L"File system: " << fileSysName << std::endl;
+
+		std::cout << "Max filename length: " << maxComponentLen << std::endl;
+
+		std::cout << "File system flags:" << std::endl;
+
+		if (fileSysFlags & FILE_CASE_SENSITIVE_SEARCH)
+			std::cout << "  - Case sensitive search" << std::endl;
+
+		if (fileSysFlags & FILE_CASE_PRESERVED_NAMES)
+			std::cout << "  - Case preserved names" << std::endl;
+
+		if (fileSysFlags & FILE_UNICODE_ON_DISK)
+			std::cout << "  - Unicode on disk" << std::endl;
+
+		if (fileSysFlags & FILE_PERSISTENT_ACLS)
+			std::cout << "  - Supports ACLs" << std::endl;
+
+		if (fileSysFlags & FILE_FILE_COMPRESSION)
+			std::cout << "  - File compression supported" << std::endl;
+
+		if (fileSysFlags & FILE_VOLUME_QUOTAS)
+			std::cout << "  - Disk quotas supported" << std::endl;
+
+		if (fileSysFlags & FILE_SUPPORTS_SPARSE_FILES)
+			std::cout << "  - Sparse files supported" << std::endl;
+
+		if (fileSysFlags & FILE_SUPPORTS_REPARSE_POINTS)
+			std::cout << "  - Reparse points supported" << std::endl;
+
+		if (fileSysFlags & FILE_SUPPORTS_REMOTE_STORAGE)
+			std::cout << "  - Remote storage supported" << std::endl;
+
+		if (fileSysFlags & FILE_VOLUME_IS_COMPRESSED)
+			std::cout << "  - Volume is compressed" << std::endl;
+
+		if (fileSysFlags & FILE_SUPPORTS_OBJECT_IDS)
+			std::cout << "  - Object IDs supported" << std::endl;
+
+		if (fileSysFlags & FILE_SUPPORTS_ENCRYPTION)
+			std::cout << "  - Encryption supported" << std::endl;
+
+		if (fileSysFlags & FILE_NAMED_STREAMS)
+			std::cout << "  - Named streams supported" << std::endl;
+
+		if (fileSysFlags & FILE_READ_ONLY_VOLUME)
+			std::cout << "  - Read-only volume" << std::endl;
+
+		if (fileSysFlags & FILE_SEQUENTIAL_WRITE_ONCE)
+			std::cout << "  - Sequential write once" << std::endl;
+
+		if (fileSysFlags & FILE_SUPPORTS_TRANSACTIONS)
+			std::cout << "  - Transactions supported" << std::endl;
 	}
 	else {
 		std::cout << "Failed to get volume information. Error: " << GetLastError() << std::endl;
@@ -181,7 +242,6 @@ void SetFileTimeFunc(const std::string& path) {
 	std::wstring wpath(path.begin(), path.end());
 	HANDLE hFile = CreateFileW(wpath.c_str(), FILE_WRITE_ATTRIBUTES, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (hFile != INVALID_HANDLE_VALUE) {
-		// For simplicity, set to current time
 		FILETIME ft;
 		SYSTEMTIME st;
 		GetSystemTime(&st);
