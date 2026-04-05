@@ -161,7 +161,7 @@
 
 #figure(
   image("write_fail.png"),
-  caption: "Отказ в записи из-за недостаточных прав (защита PAGE_READONLY)",
+  caption: "Память не выделена",
 ) <fig:write_fail>
 
 === 10. Освобождение физической памяти без удаления региона (MEM_DECOMMIT)

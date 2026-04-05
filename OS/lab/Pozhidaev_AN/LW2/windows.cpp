@@ -47,7 +47,7 @@ const char* GetStateString(DWORD state) {
     }
 }
 
-// 1. GetSystemInfo – добавлен вывод гранулярности
+// 1. GetSystemInfo
 void ShowSystemInfo() {
     SYSTEM_INFO si;
     GetSystemInfo(&si);
@@ -62,23 +62,21 @@ void ShowSystemInfo() {
     printf("Active processor mask: 0x%llX\n", si.dwActiveProcessorMask);
 }
 
-// 2. GlobalMemoryStatusEx
+// 2. GlobalMemoryStatus (строго по заданию)
 void ShowMemoryStatus() {
-    MEMORYSTATUSEX ms = { sizeof(MEMORYSTATUSEX) };
-    
-    if (GlobalMemoryStatusEx(&ms)) {
-        printf("\n=== Virtual Memory Status (GlobalMemoryStatusEx) ===\n");
-        printf("Total physical memory:     %llu MB\n", ms.ullTotalPhys / (1024 * 1024));
-        printf("Available physical memory: %llu MB\n", ms.ullAvailPhys / (1024 * 1024));
-        printf("Total virtual memory:      %llu MB\n", ms.ullTotalVirtual / (1024 * 1024));
-        printf("Available virtual memory:  %llu MB\n", ms.ullAvailVirtual / (1024 * 1024));
-        printf("Total page file size:      %llu MB\n", ms.ullTotalPageFile / (1024 * 1024));
-    } else {
-        printf("GlobalMemoryStatusEx failed. Error: %lu\n", GetLastError());
-    }
+    MEMORYSTATUS ms;
+    ms.dwLength = sizeof(MEMORYSTATUS);
+    GlobalMemoryStatus(&ms);
+
+    printf("\n=== Virtual Memory Status (GlobalMemoryStatus) ===\n");
+    printf("Total physical memory:     %lu MB\n", ms.dwTotalPhys / (1024 * 1024));
+    printf("Available physical memory: %lu MB\n", ms.dwAvailPhys / (1024 * 1024));
+    printf("Total virtual memory:      %lu MB\n", ms.dwTotalVirtual / (1024 * 1024));
+    printf("Available virtual memory:  %lu MB\n", ms.dwAvailVirtual / (1024 * 1024));
+    printf("Total page file size:      %lu MB\n", ms.dwTotalPageFile / (1024 * 1024));
 }
 
-// 3. VirtualQuery – улучшенный вывод (AllocationBase, текстовые расшифровки)
+// 3. VirtualQuery
 void VirtualQueryDemo() {
     void* address = NULL;
     printf("\nEnter address for VirtualQuery (in hex, e.g. 0x400000 or 0x00000000): ");
@@ -105,7 +103,60 @@ BOOL IsAddressAligned(LPVOID addr, DWORD granularity) {
     return ((DWORD_PTR)addr % granularity) == 0;
 }
 
-// 4.1 Раздельное резервирование (MEM_RESERVE) – автоматический адрес
+// 4. Одновременное резервирование+COMMIT (автоматический адрес)
+void VirtualAllocAuto() {
+    SYSTEM_INFO si;
+    GetSystemInfo(&si);
+    SIZE_T size = 4096 * 16; // 64 KB
+
+    LPVOID ptr = VirtualAlloc(NULL, size, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+    if (ptr) {
+        printf("\n=== VirtualAlloc (RESERVE | COMMIT) auto address ===\n");
+        printf("Memory allocated at: 0x%p, size %zu bytes\n", ptr, size);
+        char* text = (char*)ptr;
+        sprintf(text, "Hello from VirtualAlloc! Address = 0x%p", ptr);
+        printf("Data written: %s\n", text);
+
+        printf("\nPress any key to free memory (MEM_RELEASE)...");
+        _getch();
+        VirtualFree(ptr, 0, MEM_RELEASE);
+        printf("Memory released.\n");
+    } else {
+        printf("VirtualAlloc failed. Error: %lu\n", GetLastError());
+    }
+}
+
+// 5. Одновременное резервирование+COMMIT (ручной адрес)
+void VirtualAllocManual() {
+    SYSTEM_INFO si;
+    GetSystemInfo(&si);
+    SIZE_T size = 4096 * 16;
+    LPVOID addr = NULL;
+    printf("Enter base address (hex, must be multiple of %lu): ", si.dwAllocationGranularity);
+    scanf("%p", &addr);
+
+    if (!IsAddressAligned(addr, si.dwAllocationGranularity)) {
+        printf("Error: Address not aligned. Allocation cancelled.\n");
+        return;
+    }
+
+    LPVOID ptr = VirtualAlloc(addr, size, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+    if (ptr) {
+        printf("Memory allocated at: 0x%p, size %zu bytes\n", ptr, size);
+        char* text = (char*)ptr;
+        sprintf(text, "Hello from VirtualAlloc! Address = 0x%p", ptr);
+        printf("Data written: %s\n", text);
+
+        printf("\nPress any key to free memory (MEM_RELEASE)...");
+        _getch();
+        VirtualFree(ptr, 0, MEM_RELEASE);
+        printf("Memory released.\n");
+    } else {
+        printf("VirtualAlloc failed. Error: %lu (possibly address unavailable or misaligned)\n", GetLastError());
+    }
+}
+
+// 6. Раздельное резервирование – автоматический адрес
 void ReserveRegionAuto() {
     SYSTEM_INFO si;
     GetSystemInfo(&si);
@@ -113,7 +164,7 @@ void ReserveRegionAuto() {
 
     LPVOID ptr = VirtualAlloc(NULL, size, MEM_RESERVE, PAGE_NOACCESS);
     if (ptr) {
-        printf("\n=== Region reserved (MEM_RESERVE) ===\n");
+        printf("\n=== Region reserved (MEM_RESERVE) auto address ===\n");
         printf("Reserved at address: 0x%p, size: %zu bytes\n", ptr, size);
         printf("State: MEM_RESERVE (no physical memory allocated yet)\n");
         // Сохраняем для последующего COMMIT
@@ -126,7 +177,7 @@ void ReserveRegionAuto() {
     }
 }
 
-// 4.2 Раздельное резервирование – ручной адрес
+// 7. Раздельное резервирование – ручной адрес
 void ReserveRegionManual() {
     SYSTEM_INFO si;
     GetSystemInfo(&si);
@@ -152,17 +203,15 @@ void ReserveRegionManual() {
     }
 }
 
-// 5. Передача физической памяти ранее зарезервированному региону (MEM_COMMIT)
+// 8. Передача физической памяти ранее зарезервированному региону (MEM_COMMIT)
 void CommitToReservedRegion() {
     if (!g_IsReserved || g_ReservedBase == NULL) {
         printf("No reserved region found. Please reserve a region first (menu items 6 or 7).\n");
         return;
     }
-    // Пытаемся выделить физическую память для зарезервированного диапазона
     LPVOID ptr = VirtualAlloc(g_ReservedBase, g_ReservedSize, MEM_COMMIT, PAGE_READWRITE);
     if (ptr) {
         printf("Physical memory committed for region at 0x%p, size %zu bytes\n", ptr, g_ReservedSize);
-        // Проверяем состояние через VirtualQuery
         MEMORY_BASIC_INFORMATION mbi;
         if (VirtualQuery(ptr, &mbi, sizeof(mbi))) {
             printf("New state: %s\n", GetStateString(mbi.State));
@@ -172,45 +221,7 @@ void CommitToReservedRegion() {
     }
 }
 
-// 6. Одновременное резервирование+COMMIT (из исходной программы, улучшен)
-void VirtualAllocDemo() {
-    printf("\n=== VirtualAlloc (RESERVE | COMMIT) ===\n");
-    printf("1. Automatic address (NULL)\n");
-    printf("2. Manual address\n");
-    int mode;
-    scanf("%d", &mode);
-
-    SYSTEM_INFO si;
-    GetSystemInfo(&si);
-    SIZE_T size = 4096 * 16;
-    LPVOID addr = NULL;
-
-    if (mode == 2) {
-        printf("Enter base address (hex, must be multiple of %lu): ", si.dwAllocationGranularity);
-        scanf("%p", &addr);
-        if (!IsAddressAligned(addr, si.dwAllocationGranularity)) {
-            printf("Error: Address not aligned. Allocation cancelled.\n");
-            return;
-        }
-    }
-
-    LPVOID ptr = VirtualAlloc(addr, size, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
-    if (ptr) {
-        printf("Memory allocated at: 0x%p, size %zu bytes\n", ptr, size);
-        char* text = (char*)ptr;
-        sprintf(text, "Hello from VirtualAlloc! Address = 0x%p", ptr);
-        printf("Data written: %s\n", text);
-
-        printf("\nPress any key to free memory (MEM_RELEASE)...");
-        _getch();
-        VirtualFree(ptr, 0, MEM_RELEASE);
-        printf("Memory released.\n");
-    } else {
-        printf("VirtualAlloc failed. Error: %lu\n", GetLastError());
-    }
-}
-
-// 7. Запись данных по произвольному адресу (с проверкой состояния и защиты)
+// 9. Запись данных по произвольному адресу (с проверкой состояния и защиты)
 void WriteDataToAddress() {
     void* address = NULL;
     DWORD value = 0;
@@ -220,7 +231,6 @@ void WriteDataToAddress() {
     printf("Enter DWORD value to write (decimal): ");
     scanf("%lu", &value);
 
-    // Проверяем состояние памяти через VirtualQuery
     MEMORY_BASIC_INFORMATION mbi;
     if (VirtualQuery(address, &mbi, sizeof(mbi)) == 0) {
         printf("VirtualQuery failed. Error: %lu\n", GetLastError());
@@ -237,30 +247,23 @@ void WriteDataToAddress() {
         return;
     }
 
-    // Пытаемся записать
-    __try {
-        *(DWORD*)address = value;
-        printf("Successfully wrote value %lu to address 0x%p\n", value, address);
-        printf("Verification read: %lu\n", *(DWORD*)address);
-    }
-    __except(EXCEPTION_EXECUTE_HANDLER) {
-        printf("Access violation: unable to write to address 0x%p\n", address);
-    }
+    // Запись (без SEH – проверки гарантируют безопасность)
+    *(DWORD*)address = value;
+    printf("Successfully wrote value %lu to address 0x%p\n", value, address);
+    printf("Verification read: %lu\n", *(DWORD*)address);
 }
 
-// 8. MEM_DECOMMIT – освобождение физической памяти без удаления региона
+// 10. MEM_DECOMMIT – освобождение физической памяти без удаления региона
 void DecommitRegion() {
     if (!g_IsReserved || g_ReservedBase == NULL) {
         printf("No reserved region found. Use menu 6 or 7 to reserve first.\n");
         return;
     }
-    // Сначала убедимся, что регион в состоянии COMMIT (если нет – можно всё равно DECOMMIT, но это не повредит)
     MEMORY_BASIC_INFORMATION mbi;
     if (VirtualQuery(g_ReservedBase, &mbi, sizeof(mbi))) {
         if (mbi.State == MEM_COMMIT) {
             if (VirtualFree(g_ReservedBase, g_ReservedSize, MEM_DECOMMIT)) {
                 printf("MEM_DECOMMIT succeeded. Physical memory freed, region remains reserved.\n");
-                // Проверяем новое состояние
                 VirtualQuery(g_ReservedBase, &mbi, sizeof(mbi));
                 printf("Region state after DECOMMIT: %s\n", GetStateString(mbi.State));
             } else {
@@ -274,46 +277,55 @@ void DecommitRegion() {
     }
 }
 
-// 9. VirtualProtect с проверкой записи (расширенная версия)
+// 11. VirtualProtect – для заданного с клавиатуры региона
 void VirtualProtectDemo() {
+    void* address = NULL;
+    DWORD newProtect = 0;
     printf("\n=== VirtualProtect with write test ===\n");
-    // Выделяем память (одновременно)
-    LPVOID ptr = VirtualAlloc(NULL, 4096, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
-    if (!ptr) {
-        printf("Failed to allocate memory. Error: %lu\n", GetLastError());
+    printf("Enter target address (hex): ");
+    scanf("%p", &address);
+
+    MEMORY_BASIC_INFORMATION mbi;
+    if (VirtualQuery(address, &mbi, sizeof(mbi)) == 0) {
+        printf("VirtualQuery failed. Error: %lu\n", GetLastError());
         return;
     }
-    printf("Memory allocated at 0x%p with PAGE_READWRITE\n", ptr);
-    // Записываем тестовое значение
-    *(DWORD*)ptr = 0x12345678;
-    printf("Initial write successful, value = 0x%X\n", *(DWORD*)ptr);
+
+    if (mbi.State != MEM_COMMIT) {
+        printf("Cannot change protection: memory state is %s (not COMMIT).\n", GetStateString(mbi.State));
+        return;
+    }
+
+    printf("Current protection: %s\n", GetProtectString(mbi.Protect));
+    printf("Enter new protection (numeric code, e.g. 2 for PAGE_READONLY, 4 for PAGE_READWRITE):\n");
+    printf("2 - PAGE_READONLY\n4 - PAGE_READWRITE\n1 - PAGE_NOACCESS\n");
+    scanf("%lu", &newProtect);
 
     DWORD oldProtect = 0;
-    if (VirtualProtect(ptr, 4096, PAGE_READONLY, &oldProtect)) {
-        printf("Protection changed to PAGE_READONLY. Old protection: %s (0x%X)\n", GetProtectString(oldProtect), oldProtect);
+    if (VirtualProtect(address, mbi.RegionSize, newProtect, &oldProtect)) {
+        printf("Protection changed. Old protection: %s (0x%X)\n", GetProtectString(oldProtect), oldProtect);
+        printf("Attempting to write to address 0x%p...\n", address);
+        
+        // Проверяем, разрешена ли теперь запись
+        MEMORY_BASIC_INFORMATION mbi2;
+        VirtualQuery(address, &mbi2, sizeof(mbi2));
+        if (mbi2.Protect & (PAGE_READWRITE | PAGE_WRITECOPY | PAGE_EXECUTE_READWRITE | PAGE_EXECUTE_WRITECOPY)) {
+            // Запись разрешена – выполняем
+            *(DWORD*)address = 0x12345678;
+            printf("Write succeeded! New value at address: 0x%X\n", *(DWORD*)address);
+        } else {
+            // Запись не разрешена – выводим сообщение (без SEH, чтобы не падать)
+            printf("Write is not allowed due to protection %s. Access violation would occur.\n", GetProtectString(mbi2.Protect));
+        }
+        // Возвращаем старую защиту
+        VirtualProtect(address, mbi.RegionSize, oldProtect, &oldProtect);
+        printf("Protection restored to %s\n", GetProtectString(oldProtect));
     } else {
         printf("VirtualProtect failed. Error: %lu\n", GetLastError());
-        VirtualFree(ptr, 0, MEM_RELEASE);
-        return;
     }
-
-    // Попытка записи после смены защиты
-    printf("Attempting to write to read-only page...\n");
-    __try {
-        *(DWORD*)ptr = 0xDEADBEEF;
-        printf("Write succeeded! (unexpected)\n");
-    }
-    __except(EXCEPTION_EXECUTE_HANDLER) {
-        printf("Write failed as expected: access violation (EXCEPTION_ACCESS_VIOLATION).\n");
-    }
-
-    // Возвращаем исходную защиту и освобождаем память
-    VirtualProtect(ptr, 4096, PAGE_READWRITE, &oldProtect);
-    VirtualFree(ptr, 0, MEM_RELEASE);
-    printf("Memory freed.\n");
 }
 
-// Очистка глобального зарезервированного региона (если нужно перед выходом)
+// Очистка глобального зарезервированного региона
 void CleanupReservedRegion() {
     if (g_ReservedBase) {
         VirtualFree(g_ReservedBase, 0, MEM_RELEASE);
@@ -331,16 +343,16 @@ int main() {
         printf("   Lab 2.1 - Virtual Memory Management (Win32)\n");
         printf("==========================================\n");
         printf("1.  GetSystemInfo()\n");
-        printf("2.  GlobalMemoryStatusEx()\n");
+        printf("2.  GlobalMemoryStatus()\n");
         printf("3.  VirtualQuery() by address\n");
-        printf("4.  VirtualAlloc() (RESERVE|COMMIT) auto\n");
-        printf("5.  VirtualAlloc() (RESERVE|COMMIT) manual\n");
+        printf("4.  VirtualAlloc() RESERVE|COMMIT (auto address)\n");
+        printf("5.  VirtualAlloc() RESERVE|COMMIT (manual address)\n");
         printf("6.  [Separate] Reserve region only (auto address)\n");
         printf("7.  [Separate] Reserve region only (manual address)\n");
         printf("8.  [Separate] Commit to reserved region\n");
         printf("9.  Write data to arbitrary address (with checks)\n");
         printf("10. [Separate] Decommit (MEM_DECOMMIT) physical memory\n");
-        printf("11. VirtualProtect() with write test\n");
+        printf("11. VirtualProtect() with write test (user-specified address)\n");
         printf("0.  Exit\n");
         printf("==========================================\n");
         printf("Your choice: ");
@@ -348,14 +360,14 @@ int main() {
         if (scanf("%d", &choice) != 1) {
             choice = -1;
         }
-        while (getchar() != '\n'); // очистка буфера
+        while (getchar() != '\n');
 
         switch (choice) {
             case 1: ShowSystemInfo(); break;
             case 2: ShowMemoryStatus(); break;
             case 3: VirtualQueryDemo(); break;
-            case 4: VirtualAllocDemo(); break;   // автоматический адрес (совмещённый)
-            case 5: VirtualAllocDemo(); break;   // ручной адрес (та же функция, но с режимом 2)
+            case 4: VirtualAllocAuto(); break;
+            case 5: VirtualAllocManual(); break;
             case 6: ReserveRegionAuto(); break;
             case 7: ReserveRegionManual(); break;
             case 8: CommitToReservedRegion(); break;
