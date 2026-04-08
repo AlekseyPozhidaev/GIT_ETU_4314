@@ -317,11 +317,6 @@ void VirtualProtectDemo() {
             // Запись не разрешена – выводим сообщение (без SEH, чтобы не падать)
             printf("Write is not allowed due to protection %s. Access violation would occur.\n", GetProtectString(mbi2.Protect));
         }
-        // Возвращаем старую защиту
-        VirtualProtect(address, mbi.RegionSize, oldProtect, &oldProtect);
-        printf("Protection restored to %s\n", GetProtectString(oldProtect));
-    } else {
-        printf("VirtualProtect failed. Error: %lu\n", GetLastError());
     }
 }
 
