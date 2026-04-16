@@ -18,11 +18,11 @@ int main() {
 	char buffer[1024];
 
 	while (1) {
-		printf("\n=== МЕНЮ СЕРВЕРА ===\n");
-		printf("1. Выполнить проецирование\n");
-		printf("2. Записать данные\n");
-		printf("3. Завершить работу\n");
-		printf("Введите выбор: ");
+		printf("\n=== РњРµРЅСЋ СЃСЂРµРІРµСЂР° ===\n");
+		printf("1. Р’С‹РїРѕР»РЅРёС‚СЊ РїСЂРѕРµС†РёСЂРѕРІР°РЅРёРµ\n");
+		printf("2. Р—Р°РїРёСЃР°С‚СЊ РґР°РЅРЅС‹Рµ\n");
+		printf("3. Р—Р°РІРµСЂС€РёС‚СЊ СЂР°Р±РѕС‚Сѓ\n");
+		printf("Р’Р’РµРґРёС‚Рµ РІС‹Р±РѕСЂ: ");
 
 		scanf("%d", &choice);
 		getchar();
@@ -30,11 +30,10 @@ int main() {
 		switch (choice) {
 			case 1:
 				if (fd != -1) {
-					printf("Уже выполнено!\n");
+					printf("РЈР¶Рµ РІС‹РїРѕР»РЅРµРЅРѕ!\n");
 					break;
 				}
 
-				// создаём pipe (FIFO)
 				mkfifo(PIPE_NAME, 0666);
 
 				fd = open(FILENAME, O_RDWR | O_CREAT | O_TRUNC, 0666);
@@ -45,7 +44,7 @@ int main() {
 
 				ftruncate(fd, FILESIZE);
 
-				ptr = mmap(NULL, FILESIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+				ptr = (char*)mmap(NULL, FILESIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 				if (ptr == MAP_FAILED) {
 					perror("mmap");
 					exit(1);
@@ -57,16 +56,16 @@ int main() {
 					exit(1);
 				}
 
-				printf("Сервер готов.\n");
+				printf("РЎРµСЂРІРµСЂ РіРѕС‚РѕРІ.\n");
 				break;
 
 			case 2:
 				if (ptr == NULL) {
-					printf("Сначала проецирование!\n");
+					printf("РЎРЅР°С‡Р°Р» РїСЂРѕРµС†РёСЂРѕРІР°РЅРёРµ!\n");
 					break;
 				}
 
-				printf("Введите строку: ");
+				printf("Р’РІРµРґРёС‚Рµ СЃС‚СЂРѕРєСѓ: ");
 				fgets(buffer, sizeof(buffer), stdin);
 				buffer[strcspn(buffer, "\n")] = '\0';
 
@@ -75,7 +74,7 @@ int main() {
 
 				write(pipe_fd, "1", 1);
 
-				printf("Данные записаны и сигнал отправлен.\n");
+				printf("Р”Р°РЅРЅС‹Рµ Р·Р°РїРёСЃР°РЅС‹ Рё СЃРёРіРЅР°Р» РѕС‚РїСЂР°РІР»РµРЅ.\n");
 				break;
 
 			case 3:
@@ -86,7 +85,7 @@ int main() {
 				unlink(FILENAME);
 				unlink(PIPE_NAME);
 
-				printf("Сервер завершён.\n");
+				printf("РЎРµСЂРІРµСЂ Р·Р°РІРµСЂС€РµРЅ.\n");
 				exit(0);
 		}
 	}

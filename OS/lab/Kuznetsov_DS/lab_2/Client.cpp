@@ -6,40 +6,42 @@
 #include <sys/select.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <locale>
 
 #define FILENAME "shared_memory.dat"
 #define PIPE_NAME "sync_pipe"
 #define FILESIZE 4096
 
 int main() {
+	setlocale(LC_ALL, "");
 	int fd = -1;
 	int pipe_fd = -1;
 	char* ptr = NULL;
 	int choice;
 
 	while (1) {
-		printf("\n=== МЕНЮ КЛИЕНТА ===\n");
-		printf("1. Выполнить проецирование\n");
-		printf("2. Прочитать данные\n");
-		printf("3. Завершить работу\n");
-		printf("Введите выбор: ");
+		printf("\n=== РњРµРЅСЋ РљР»РёРµРЅС‚Р° ===\n");
+		printf("1. Р’С‹РїРѕР»РЅРёС‚СЊ РїСЂРѕРµС†РёСЂРѕРІР°РЅРёРµ\n");
+		printf("2. РџСЂРѕС‡РёС‚Р°С‚СЊ РґР°РЅРЅС‹Рµ\n");
+		printf("3. Р—Р°РІРµСЂС€РёС‚СЊ СЂР°Р±РѕС‚Сѓ\n");
+		printf("Р’Р’РµРґРёС‚Рµ РІС‹Р±РѕСЂ: ");
 
 		scanf("%d", &choice);
 
 		switch (choice) {
 			case 1:
 				if (fd != -1) {
-					printf("Уже выполнено!\n");
+					printf("РЈР¶Рµ РІС‹РїРѕР»РЅРµРЅРѕ!\n");
 					break;
 				}
 
 				fd = open(FILENAME, O_RDWR);
 				if (fd == -1) {
-					perror("open файл");
+					perror("open Р¤Р°Р№Р»");
 					break;
 				}
 
-				ptr = mmap(NULL, FILESIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+				ptr = (char*)mmap(NULL, FILESIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 				if (ptr == MAP_FAILED) {
 					perror("mmap");
 					exit(1);
@@ -51,12 +53,12 @@ int main() {
 					exit(1);
 				}
 
-				printf("Клиент готов.\n");
+				printf("РљР»РёРµРЅС‚ РіРѕС‚РѕРІ.\n");
 				break;
 
 			case 2:
 				if (ptr == NULL) {
-					printf("Сначала проецирование!\n");
+					printf("РЎРЅР°С‡Р°Р» РїСЂРѕРµС†РёСЂРѕРІР°РЅРёРµ!\n");
 					break;
 				}
 
@@ -64,14 +66,14 @@ int main() {
 				FD_ZERO(&readfds);
 				FD_SET(pipe_fd, &readfds);
 
-				printf("Ожидание данных...\n");
+				printf("РћР¶РёРґР°РЅРёРµ РґР°РЅРЅС‹С…...\n");
 
 				select(pipe_fd + 1, &readfds, NULL, NULL, NULL);
 
 				char signal;
 				read(pipe_fd, &signal, 1);
 
-				printf("Получено: %s\n", ptr);
+				printf("РџРѕР»СѓС‡РµРЅРѕ: %s\n", ptr);
 				break;
 
 			case 3:
@@ -79,7 +81,7 @@ int main() {
 				if (fd != -1) close(fd);
 				if (pipe_fd != -1) close(pipe_fd);
 
-				printf("Клиент завершён.\n");
+				printf("РљР»РёРµРЅС‚ Р·Р°РІРµСЂС€РµРЅ.\n");
 				exit(0);
 		}
 	}
