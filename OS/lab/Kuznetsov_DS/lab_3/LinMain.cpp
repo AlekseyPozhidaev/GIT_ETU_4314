@@ -1,18 +1,31 @@
+#include <cstdlib>
 #include <iostream>
 #include <omp.h>
 
 using namespace std;
 
-int main() {
+int main(int argc, char* argv[]) {
 	const long long N = 100000000;
 	const int chunk_size = 4314100;
-	double pi = 0.0;
 
-	int thread_counts[] = { 1, 2, 4, 8, 12, 16 };
+	// Проверка аргументов командной строки
+	if (argc < 2) {
+		cerr << "Usage: " << argv[0] << " <num_threads1> [num_threads2] [num_threads3] ..." << endl;
+		cerr << "Example: " << argv[0] << " 1 2 4 8 12 16" << endl;
+		return 1;
+	}
 
-	for (int t = 0; t < 6; t++) {
-		int num_threads = thread_counts[t];
+	// Перебираем все аргументы (первый аргумент - имя программы, поэтому начинаем с 1)
+	for (int arg_idx = 1; arg_idx < argc; arg_idx++) {
+		int num_threads = atoi(argv[arg_idx]);
+
+		if (num_threads <= 0) {
+			cerr << "Error: Invalid number of threads: " << argv[arg_idx] << endl;
+			continue;
+		}
+
 		double sum = 0.0;
+		double pi = 0.0;
 
 		omp_set_num_threads(num_threads);
 
