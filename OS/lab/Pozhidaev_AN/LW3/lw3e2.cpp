@@ -1,11 +1,3 @@
-/**
- * Программа вычисления числа π с использованием OpenMP.
- * Компиляция: gcc -fopenmp -O2 -o pi_openmp pi_openmp.c
- * Запуск:     ./pi_openmp <число_потоков>
- * 
- * Пример вывода: pi=3.1415926436 time=0.059967
- */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <omp.h>

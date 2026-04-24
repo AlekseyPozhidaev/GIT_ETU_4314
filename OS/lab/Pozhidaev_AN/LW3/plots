@@ -1,0 +1,23 @@
+import matplotlib.pyplot as plt
+
+data = []
+
+with open("results2.csv") as results:
+    line = results.readline()
+    for line in results.readlines():
+        data.append(line.split(","))
+
+threds = []
+time = []
+
+for i_rec in data:
+    threds.append(int(i_rec[0]))
+    time.append(float(i_rec[1]))
+
+plt.plot(threds, time, "o-", label="Time spend")
+plt.yticks(time)
+plt.ylabel("Время, с")
+plt.xlabel("Число потоков")
+plt.grid(True)
+plt.show()
+
