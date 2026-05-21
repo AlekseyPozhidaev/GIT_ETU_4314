@@ -10,7 +10,7 @@
 const int PAGE_COUNT = 16; // Сумма цифр ID 431417 без первой (3+1+4+1+7) 
 const int MIN_DELAY = 500;
 const int MAX_DELAY = 1500;
-const int ITERATIONS = 50;
+const int ITERATIONS = 15;
 
 const char* SHM_NAME = "Local\\SharedBuffer_Lab4";
 const char* BACKING_FILE = "buffer_storage.bin";

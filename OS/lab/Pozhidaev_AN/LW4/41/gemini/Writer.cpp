@@ -32,12 +32,6 @@ int main() {
     }
     ReleaseMutex(hControlMutex);
 
-    // Очистка страниц
-    for (int i = 0; i < PAGE_COUNT; ++i) {
-        char* pagePtr = (char*)pBuf + sizeof(ControlHeader) + i * si.dwPageSize;
-        memset(pagePtr, 0, si.dwPageSize);
-    }
-
     std::string logName = "Writer_" + std::to_string(GetCurrentProcessId()) + ".csv";
     std::ofstream log(logName);
 
@@ -52,15 +46,10 @@ int main() {
             if (page == -1) Sleep(1);
         } while (page == -1);
 
-        char semName[64];
-        sprintf_s(semName, "%s%d", SEM_PREFIX, page);
-        HANDLE hWriteSem = CreateSemaphoreA(NULL, 1, 1, semName);
-
-        WaitForSingleObject(hWriteSem, INFINITE);
+        char* pagePtr = (char*)pBuf + sizeof(ControlHeader) + page * si.dwPageSize;
+        memset(pagePtr, 0, si.dwPageSize);
 
         LogCsv(log, 1, page);                 // ACTIVE
-
-        char* pagePtr = (char*)pBuf + sizeof(ControlHeader) + page * si.dwPageSize;
         char buffer[256];
         DWORD tick = timeGetTime();
         sprintf_s(buffer, "Writer %d at %u", GetCurrentProcessId(), tick);
@@ -76,9 +65,6 @@ int main() {
         ReleaseMutex(hControlMutex);
 
         LogCsv(log, 2, page);                 // RELEASE
-        ReleaseSemaphore(hWriteSem, 1, NULL);
-
-        CloseHandle(hWriteSem);
         Sleep(100);
     }
 

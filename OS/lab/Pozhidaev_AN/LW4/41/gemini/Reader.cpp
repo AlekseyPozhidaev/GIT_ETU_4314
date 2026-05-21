@@ -32,12 +32,6 @@ int main() {
             if (page == -1) Sleep(1);
         } while (page == -1);
 
-        char semName[64];
-        sprintf_s(semName, "%s%d", SEM_PREFIX, page);
-        HANDLE hWriteSem = CreateSemaphoreA(NULL, 1, 1, semName);
-
-        WaitForSingleObject(hWriteSem, INFINITE);
-
         LogCsv(log, 1, page);                 // ACTIVE
 
         char* pagePtr = (char*)pBuf + sizeof(ControlHeader) + page * si.dwPageSize;
@@ -58,9 +52,6 @@ int main() {
         ReleaseMutex(hControlMutex);
 
         LogCsv(log, 2, page);                 // RELEASE
-        ReleaseSemaphore(hWriteSem, 1, NULL);
-
-        CloseHandle(hWriteSem);
         Sleep(100);
     }
 
